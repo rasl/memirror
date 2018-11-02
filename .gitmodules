@@ -1,0 +1,3 @@
+[submodule "memindisk"]
+	path = memindisk
+	url = https://github.com/rasl/memindisk.git
