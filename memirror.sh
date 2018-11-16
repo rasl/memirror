@@ -3,6 +3,7 @@
 MOUNT_POINT=~/work/memory
 SRC=~/work/b2bcenter
 DST=~/work/memory
+DST_FULL=~/work/memory/b2bcenter/
 SIZE_IN_MB=4000
 PROG=$0
 PROG_DIR=$(dirname $0)
@@ -15,7 +16,7 @@ This program replicate dir to memory partition
 Usage
 	$PROG <cmd>
   cmd:
-	enable, disable, start_auto_sync, stop_auto_sync
+	enable, disable, start_auto_sync, stop_auto_sync, manual_sync
 USAGE
 }
 
@@ -24,14 +25,14 @@ enable()
 	# init disk &&
 	# sync from SRC to DST
 	$PROG_DIR/memindisk/mount-ram.sh $MOUNT_POINT $SIZE_IN_MB && \
-	rsync -avh --exclude ".fseventsd" --delete $SRC $DST
+	rsync -ah --exclude ".fseventsd" --delete $SRC $DST
 	if [ $? -ne 0 ]; then
 		echo "disk not created and files does not synced"
 		exit $?
 	fi
 	echo "disk created"
 	echo "mount point $MOUNT_POINT"
-	echo "folders synced $DST<->$SRC"
+	echo "folders synced $SRC<->$DST"
 }
 
 disable()
@@ -43,6 +44,16 @@ disable()
 		exit $?
 	fi
 	echo "disk unmounted"
+}
+
+manual_sync()
+{
+	rsync -ah --exclude ".fseventsd" --delete $DST_FULL $SRC
+	if [ $? -ne 0 ]; then
+		echo "folders not synced $DST_FULL<->$SRC"
+		exit $?
+	fi
+	echo "folders synced $DST_FULL<->$SRC"
 }
 
 start_auto_sync()
@@ -77,6 +88,10 @@ case $i in
     ;;
     stop_auto_sync)
 	stop_auto_sync
+    shift
+    ;;
+    manual_sync)
+	manual_sync
     shift
     ;;
     *)
